@@ -29,6 +29,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   http: ^0.13.1
+  font_awesome_flutter:
   # youtube_player_flutter: ^8.0.0
 
 dev_dependencies:

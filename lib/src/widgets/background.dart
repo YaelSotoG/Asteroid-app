@@ -15,7 +15,7 @@ class Background extends StatelessWidget {
       children: [
         Container(
             // decoration: decoration,
-            color: Color.fromRGBO(0, 40, 85, 1)),
+            color: Color.fromRGBO(20, 19, 21, 1)),
         Positioned(
             right: -300,
             top: 80,
@@ -36,12 +36,19 @@ class Background extends StatelessWidget {
       height: 500,
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(400),
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            stops: [0.5, 0.55],
-            colors: [color, colorb],
-          )),
+          gradient: gradiente(color, colorb)),
     );
   }
+}
+
+gradiente(Color color, colorb) {
+  return RadialGradient(
+    center: Alignment(-.3, -.5),
+    radius: .25,
+    tileMode: TileMode.mirror,
+    // begin: Alignment.topCenter,
+    // end: Alignment.bottomCenter,
+    // stops: [0.5, 0.55],
+    colors: [color, colorb],
+  );
 }

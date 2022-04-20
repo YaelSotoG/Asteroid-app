@@ -8,9 +8,12 @@ import 'package:flutter_application_1/src/models/dia_model.dart';
 import 'package:flutter_application_1/src/providers/nasa_providers.dart';
 import 'package:flutter_application_1/src/widgets/background.dart';
 
-class HomePage extends StatelessWidget {
-  final imagen = new NasaProvider();
+import 'asteroid_page.dart';
 
+final imagen = new NasaProvider();
+Future asteroides = imagen.getAsteroides();
+
+class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,8 +65,9 @@ class HomePage extends StatelessWidget {
   }
 
   Widget _imagenDia() {
+    //muestra la imagen del dia de la nasa
     // imagen.getImagenDia();
-    imagen.getAsteroides();
+    // imagen.getAsteroides();
 
     return Container(
       decoration: decoration(20.0, Color.fromRGBO(224, 225, 221, 1)),
@@ -117,9 +121,31 @@ class HomePage extends StatelessWidget {
   }
 
   Widget _asteroidesCerca() {
+    //lista de asteroides cerca
     int val = 0;
-    String diametro, velocidad, distancia, nombre;
+    String diametromax, velocidad, distancia, nombre, diametromin;
     bool peligro;
+
+    void datos(int entero, val, Asteroides snapshot) {
+      //revisa los datos y los manda
+      for (var x in snapshot.nearEarthObjects.values.first) {
+        if (val == entero) {
+          diametromin =
+              x.estimatedDiameter.meters.estimatedDiameterMin.toString();
+          diametromax =
+              x.estimatedDiameter.meters.estimatedDiameterMax.toString();
+          nombre = x.name;
+          peligro = x.isPotentiallyHazardousAsteroid;
+          for (var y in x.closeApproachData) {
+            velocidad = y.relativeVelocity.kilometersPerSecond;
+            distancia = y.missDistance.kilometers;
+          }
+          val = 0;
+          break;
+        }
+        val++;
+      }
+    }
 
     return FutureBuilder(
       future: imagen.getAsteroides(),
@@ -134,24 +160,7 @@ class HomePage extends StatelessWidget {
             separatorBuilder: (BuildContext context, int entero) => Divider(),
             // itemCount: 10,
             itemBuilder: (BuildContext context, int entero) {
-              for (var x in snapshot.data.nearEarthObjects.values.first) {
-                if (val == entero) {
-                  diametro = x.estimatedDiameter.meters.estimatedDiameterMax
-                      .toString();
-                  nombre = x.name;
-                  // print(nombre);
-                  peligro = x.isPotentiallyHazardousAsteroid;
-                  // velocidad=;
-                  for (var y in x.closeApproachData) {
-                    velocidad = y.relativeVelocity.kilometersPerSecond;
-                    distancia = y.missDistance.kilometers;
-                  }
-
-                  val = 0;
-                  break;
-                }
-                val++;
-              }
+              datos(entero, val, snapshot.data);
               return Stack(
                 children: [
                   Container(
@@ -181,34 +190,55 @@ class HomePage extends StatelessWidget {
                                 SizedBox(
                                   width: 15.0,
                                 ),
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    // Title(title: nombre),
+                                Expanded(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      // Title(title: nombre),
 
-                                    Text(
-                                      nombre,
-                                      style: TextStyle(
-                                          fontFamily: 'Space',
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 20.0,
-                                          color: Colors.black),
-                                    ),
+                                      TextButton(
+                                        onPressed: () {
+                                          //llama a la proxima pagina
+                                          final route = MaterialPageRoute(
+                                              builder: (context) {
+                                            datos(entero, val, snapshot.data);
+                                            return AsteroidPage(
+                                                snapshot.data,
+                                                entero,
+                                                velocidad,
+                                                distancia,
+                                                diametromax,
+                                                diametromin);
+                                          });
+                                          Navigator.push(context, route);
+                                        },
+                                        child: Text(
+                                          nombre,
+                                          style: TextStyle(
+                                              fontFamily: 'Space',
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 20.0,
+                                              color: Colors.black),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
 
-                                    SizedBox(height: 2.0),
-                                    cartas('Diam: $diametro m'),
+                                      SizedBox(height: 2.0),
+                                      cartas('Diam: $diametromax m'),
 
-                                    SizedBox(
-                                      height: 2.0,
-                                    ),
+                                      SizedBox(
+                                        height: 2.0,
+                                      ),
 
-                                    cartas('Vel: $velocidad Km/s'),
-                                    SizedBox(
-                                      height: 2.0,
-                                    ),
-                                    cartas('Dis: $distancia km'),
-                                  ],
+                                      cartas('Vel: $velocidad Km/s'),
+                                      SizedBox(
+                                        height: 2.0,
+                                      ),
+                                      cartas('Dis: $distancia km'),
+                                    ],
+                                  ),
                                 ),
                               ],
                             )),
